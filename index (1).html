@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List App with Web Links</title>
+    <style>
+        :root {
+            --primary: #2196F3;
+            --secondary: #1976D2;
+            --accent: #FF6B6B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --bg-dark: #0f1419;
+            --bg-light: #1a1f2e;
+            --text: #e0e0e0;
+            --text-light: #b0b0b0;
+            --card-bg: #16213e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* Todo Input Section */
+        .input-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            animation: fadeInLeft 0.7s ease-out;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(33, 150, 243, 0.1);
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        /* Todo List */
+        .todo-section {
+            animation: fadeInRight 0.7s ease-out;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            background: transparent;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .todos-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .todos-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todos-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .todos-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .todo-item {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            animation: slideInUp 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            border-left-color: var(--success);
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+        }
+
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .todo-title {
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .priority-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: rgba(244, 67, 54, 0.3);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(255, 193, 7, 0.3);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: rgba(76, 175, 80, 0.3);
+            color: var(--success);
+        }
+
+        .todo-meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 8px 0;
+        }
+
+        .todo-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .todo-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            background: rgba(33, 150, 243, 0.2);
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Web Links Section */
+        .links-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            animation: fadeInUp 0.7s ease-out;
+        }
+
+        .links-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .link-input-group {
+            margin-bottom: 15px;
+        }
+
+        .link-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent);
+            animation: slideInRight 0.5s ease-out backwards;
+            transition: all 0.3s ease;
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .link-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .link-url {
+            font-size: 0.85rem;
+            color: var(--primary);
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .link-url a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .link-url a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .todos-container {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Todo List Manager</h1>
+            <p>Stay organized with tasks and useful web links</p>
+        </header>
+
+        <div class="main-layout">
+            <!-- Left: Todos -->
+            <div class="todo-section">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label>Task Title *</label>
+                        <input type="text" id="todoTitle" placeholder="Enter your task...">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Description</label>
+                        <textarea id="todoDesc" placeholder="Add details (optional)..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Category</label>
+                        <select id="todoCategory">
+                            <option value="Work">Work</option>
+                            <option value="Study">Study</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Health">Health</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Priority</label>
+                        <select id="todoPriority">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addTodo()">+ Add Task</button>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="filterTodos('all')">All Tasks</button>
+                        <button class="tab-btn" onclick="filterTodos('completed')">Completed</button>
+                        <button class="tab-btn" onclick="filterTodos('pending')">Pending</button>
+                    </div>
+
+                    <div class="todos-container" id="todosList">
+                        <div class="empty-state">No tasks yet. Add one to get started!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Web Links -->
+            <div class="links-section">
+                <h3>🔗 Web Links</h3>
+
+                <div class="link-input-group">
+                    <label>Link Title</label>
+                    <input type="text" id="linkTitle" placeholder="e.g., GitHub">
+                </div>
+
+                <div class="link-input-group">
+                    <label>Link URL</label>
+                    <input type="url" id="linkUrl" placeholder="https://example.com">
+                </div>
+
+                <button class="btn btn-primary" onclick="addLink()" style="margin-bottom: 20px;">+ Add Link</button>
+
+                <div id="linksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+        let currentFilter = 'all';
+
+        function addTodo() {
+            const title = document.getElementById('todoTitle').value.trim();
+            const desc = document.getElementById('todoDesc').value.trim();
+            const category = document.getElementById('todoCategory').value;
+            const priority = document.getElementById('todoPriority').value;
+
+            if (!title) {
+                alert('Please enter a task title!');
+                return;
+            }
+
+            const todo = {
+                id: Date.now(),
+                title,
+                desc,
+                category,
+                priority,
+                completed: false,
+                createdAt: new Date().toLocaleDateString()
+            };
+
+            todos.unshift(todo);
+            saveTodos();
+            renderTodos();
+
+            // Clear inputs
+            document.getElementById('todoTitle').value = '';
+            document.getElementById('todoDesc').value = '';
+        }
+
+        function toggleTodo(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                renderTodos();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+            renderTodos();
+        }
+
+        function filterTodos(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTodos();
+        }
+
+        function renderTodos() {
+            const container = document.getElementById('todosList');
+            let filtered = todos;
+
+            if (currentFilter === 'completed') {
+                filtered = todos.filter(t => t.completed);
+            } else if (currentFilter === 'pending') {
+                filtered = todos.filter(t => !t.completed);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks here yet!</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <div class="todo-header">
+                        <input type="checkbox" class="checkbox" ${todo.completed ? 'checked' : ''} 
+                               onchange="toggleTodo(${todo.id})">
+                        <span class="todo-title">${escapeHtml(todo.title)}</span>
+                        <span class="priority-badge priority-${todo.priority.toLowerCase()}">${todo.priority}</span>
+                    </div>
+                    ${todo.desc ? `<div class="todo-description">${escapeHtml(todo.desc)}</div>` : ''}
+                    <div class="todo-meta">
+                        <span class="tag">${todo.category}</span>
+                        <span style="color: var(--text-light); font-size: 0.8rem; margin-left: 10px;">${todo.createdAt}</span>
+                    </div>
+                    <div class="todo-actions">
+                        <button class="btn btn-small btn-danger" onclick="deleteTodo(${todo.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addLink() {
+            const title = document.getElementById('linkTitle').value.trim();
+            const url = document.getElementById('linkUrl').value.trim();
+
+            if (!title || !url) {
+                alert('Please enter both title and URL!');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('URL must start with http:// or https://');
+                return;
+            }
+
+            const link = {
+                id: Date.now(),
+                title,
+                url,
+                addedAt: new Date().toLocaleDateString()
+            };
+
+            links.unshift(link);
+            saveLinks();
+            renderLinks();
+
+            document.getElementById('linkTitle').value = '';
+            document.getElementById('linkUrl').value = '';
+        }
+
+        function deleteLink(id) {
+            links = links.filter(l => l.id !== id);
+            saveLinks();
+            renderLinks();
+        }
+
+        function renderLinks() {
+            const container = document.getElementById('linksList');
+            if (links.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">No links saved yet!</div>';
+                return;
+            }
+
+            container.innerHTML = links.map((link, idx) => `
+                <div class="link-item" style="animation-delay: ${idx * 0.1}s;">
+                    <div class="link-title">${escapeHtml(link.title)}</div>
+                    <div class="link-url"><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.url}</a></div>
+                    <div class="link-actions">
+                        <button class="btn btn-small btn-danger" onclick="deleteLink(${link.id})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function saveLinks() {
+            localStorage.setItem('links', JSON.stringify(links));
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initial render
+        renderTodos();
+        renderLinks();
+    </script>
+</body>
+</html>
